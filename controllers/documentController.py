@@ -23,8 +23,9 @@ async def redis(request_body: dict = Body(...)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/retrieve/{question}")
-async def ret(question: str):
+@router.post("/retrieve")
+async def ret(request_body: dict = Body(...)):
+    question = request_body.get("question")
     return retrieve(question)
 
 

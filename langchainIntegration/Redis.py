@@ -19,7 +19,7 @@ from langchain.prompts.prompt import PromptTemplate
 
 
 chat = ChatOpenAI()
-load_dotenv()
+load_dotenv(override=True)
 url = os.getenv("REDIS_URL")
 host = os.getenv("REDIS_HOST")
 password = os.getenv("REDIS_PASSWORD")

@@ -1,6 +1,6 @@
 from models.document import Document
 from repositories.documentRepo import DocumentRepo
-from langchainIntegration.DocumentLoaders import load_pdf, load_website, load_docx, load_csv
+from langchainIntegration.DocumentLoaders import load_pdf, load_website, load_docx, load_csv, load_youtube, load_HTML, load_image
 from langchain_core.documents.base import Document as Doc
 
 
@@ -30,6 +30,12 @@ class DocumentService:
             loaded_content = load_docx(document_url)
         elif document_url.endswith('.csv'):
             loaded_content = load_csv(document_url)
+        elif document_url.endswith('.jpg') or document_url.endswith('.png'):
+            loaded_content = load_image(document_url)
+        elif document_url.endswith('.html'):
+            loaded_content = load_HTML(document_url)
+        elif document_url.startswith('https://www.youtube.com/'):
+            loaded_content = load_youtube(document_url)
         else:
             loaded_content = load_website(document_url)
         return loaded_content

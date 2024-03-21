@@ -1,3 +1,7 @@
+numeric:
+- name: page
+  no_index: false
+  sortable: false
 text:
 - name: source
   no_index: false
