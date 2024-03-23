@@ -1,6 +1,6 @@
 DATABASE_CONFIG = {
     "host": "",
-    "port": ,
+    "port": 0,
     "user": "",
     "password": "",
     "database": ""
