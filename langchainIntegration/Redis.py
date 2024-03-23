@@ -46,17 +46,8 @@ def similarity_search(query: str):
     return results
 
 
-'''def retrieve():
-    vstore = Redis.from_existing_index(embeddings, index_name="chatserver", schema="redis_schema.yaml")
-    retriever = MultiQueryRetriever.from_llm(
-        retriever=vstore.as_retriever(), llm=chat
-    )
-    question = "what is this dataset?"
-    llm = ChatOpenAI()
-    response = llm.(question, retriever=retriever)
-    return response'''
 
-def retrieve(question):
+def question_response(question):
   vstore = Redis.from_existing_index(embeddings, index_name="chatserver", schema="redis_schema.yaml")
   template = """Given the following chat history and a follow up question, rephrase the follow up input question to be a standalone question.
   Or end the conversation if it seems like it's done.
@@ -72,7 +63,7 @@ def retrieve(question):
 
   template = """{question}
 
-  It's ok if you don't know the answer.
+  Respond using my input language.
   Context:\"""
 
   {context}
@@ -122,23 +113,79 @@ def retrieve(question):
 
   return result
 
+def chat(question):
+  vstore = Redis.from_existing_index(embeddings, index_name="chatserver", schema="redis_schema.yaml")
+  template = """Given the following chat history and a follow up question, rephrase the follow up input question to be a standalone question.
+  Or end the conversation if it seems like it's done.
+  Chat History:\"""
+  {chat_history}
+  \"""
+  Follow Up Input: \"""
+  {question}
+  \"""
+  Standalone question:"""
+
+  condense_question_prompt = PromptTemplate.from_template(template)
+
+  template = """{question}
+
+  Repond using my input language.
+  Context:\"""
+
+  {context}
+  \"""
+  Question:\"""
+  {question}
+  \"""
+
+  Helpful Answer:"""
+
+  qa_prompt = PromptTemplate.from_template(template)
+  llm = OpenAI(temperature=0)
+
+  streaming_llm = OpenAI(
+    streaming=True,
+    callback_manager=CallbackManager([
+      StreamingStdOutCallbackHandler()
+    ]),
+    verbose=True,
+    max_tokens=150,
+    temperature=0.2
+  )
+
+  # use the LLM Chain to create a question creation chain
+  question_generator = LLMChain(
+    llm=llm,
+    prompt=condense_question_prompt
+  )
+
+  # use the streaming LLM to create a question answering chain
+  doc_chain = load_qa_chain(
+    llm=streaming_llm,
+    chain_type="stuff",
+    prompt=qa_prompt
+  )
+  chatbot = ConversationalRetrievalChain(
+    retriever=vstore.as_retriever(),
+    combine_docs_chain=doc_chain,
+    question_generator=question_generator
+  )
+  # create a chat history buffer
+  '''chat_history = []
+  # gather user input for the first question to kick off the bot
+  result = chatbot(
+      {"question": question, "chat_history": chat_history}
+  )'''
+  chat_history = []
+
+  question = question
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  while True:
+      result = chatbot(
+          {"question": question, "chat_history": chat_history}
+      )
+      print("\n")
+      chat_history.append((result["question"], result["answer"]))
+      print(chat_history)
+      question = input()

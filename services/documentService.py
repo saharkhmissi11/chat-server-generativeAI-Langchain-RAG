@@ -1,6 +1,6 @@
 from models.document import Document
 from repositories.documentRepo import DocumentRepo
-from langchainIntegration.DocumentLoaders import load_pdf, load_website, load_docx, load_csv, load_youtube, load_HTML, load_image
+from langchainIntegration.DocumentLoaders import load_pdf, load_website, load_docx, load_csv, load_youtube, load_HTML, load_image, load_pdff
 from langchain_core.documents.base import Document as Doc
 
 

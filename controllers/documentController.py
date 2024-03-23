@@ -3,8 +3,8 @@ from models.document import Document
 from services.documentService import DocumentService
 from langchainIntegration.EmbeddingModels import embed_text, embed_doc
 from langchain_core.documents.base import Document as Doc
-from langchainIntegration.Redis import load, similarity_search, retrieve
-
+from langchainIntegration.Redis import load, similarity_search, question_response
+from langchainIntegration.DocumentLoaders import load_document
 router = APIRouter()
 document_service = DocumentService()
 
@@ -26,7 +26,7 @@ async def redis(request_body: dict = Body(...)):
 @router.post("/retrieve")
 async def ret(request_body: dict = Body(...)):
     question = request_body.get("question")
-    return retrieve(question)
+    return question_response(question)
 
 
 @router.post("/search/{query}")
